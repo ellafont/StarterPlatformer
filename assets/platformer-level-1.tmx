@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="18" tileheight="18" infinite="0" nextlayerid="3" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="18" tileheight="18" infinite="0" nextlayerid="4" nextobjectid="9">
  <editorsettings>
   <export target="platformer-level-1.tmj" format="json"/>
  </editorsettings>
@@ -369,4 +369,25 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,74,74,74,74,74,74,74,74,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="1" name="PlayerSpawn" type="playerSpawn" x="44.4259" y="241.566"/>
+  <object id="2" name="Coin" type="coin" x="133.278" y="79.1337">
+   <ellipse/>
+  </object>
+  <object id="3" name="Coin" type="coin" x="331.806" y="277.662">
+   <ellipse/>
+  </object>
+  <object id="4" name="Coin" type="coin" x="188.81" y="276.274">
+   <ellipse/>
+  </object>
+  <object id="5" name="Coin" type="coin" x="206.858" y="188.81">
+   <ellipse/>
+  </object>
+  <object id="6" name="Coin" type="coin" x="458.142" y="134.666">
+   <ellipse/>
+  </object>
+  <object id="7" name="Coin" type="coin" x="637.234" y="41.6493">
+   <ellipse/>
+  </object>
+ </objectgroup>
 </map>

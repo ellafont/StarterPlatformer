@@ -12,6 +12,9 @@ class Load extends Phaser.Scene {
         // Load tilemap information
         this.load.image("tilemap_tiles", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj");   // Tilemap in JSON
+        
+        // Load coin sound (optional)
+        // this.load.audio('coin-collect', 'coin-collect.wav');
     }
 
     create() {
@@ -43,6 +46,20 @@ class Load extends Phaser.Scene {
             frames: [
                 { frame: "tile_0001.png" }
             ],
+        });
+        
+        // Add a spinning coin animation
+        this.anims.create({
+            key: 'coin-spin',
+            frames: this.anims.generateFrameNames('platformer_characters', {
+                prefix: "tile_",
+                start: 10,  // Assuming coin frames start here
+                end: 12,    // And end here
+                suffix: ".png",
+                zeroPad: 4
+            }),
+            frameRate: 8,
+            repeat: -1
         });
 
          // ...and pass to the next Scene
