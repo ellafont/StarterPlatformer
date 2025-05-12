@@ -31,6 +31,11 @@ let config = {
     },
     width: 1440,
     height: 900,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    backgroundColor: '#87CEEB', // Set a background color for empty space
     scene: [Load, Platformer]
 }
 
