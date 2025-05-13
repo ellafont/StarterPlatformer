@@ -15,6 +15,19 @@ class Load extends Phaser.Scene {
         
         // Load coin sound (optional)
         // this.load.audio('coin-collect', 'coin-collect.wav');
+
+        // Load twirl particle images
+        this.load.image("twirl_01", "particles/circle_01.png");
+        this.load.image("twirl_02", "particles/circle_04.png");
+        this.load.image("twirl_03", "particles/circle_05.png");
+
+        // Debug loading of twirl images
+        this.load.on('filecomplete', function(key) {
+            if (key.includes('twirl')) {
+                console.log('Loaded twirl image:', key);
+            }
+        });
+
     }
 
     create() {

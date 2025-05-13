@@ -55,6 +55,9 @@ class Platformer extends Phaser.Scene {
         // Create a group for coins
         this.coinGroup = this.physics.add.group();
 
+        // Initialize particle emitters for later use
+        this.initParticles();
+
         // Find spawn point and coins from the object layer
         // The Objects layer should be created in Tiled with player spawn point and coins
         if (this.map.getObjectLayer('Objects')) {
@@ -189,6 +192,80 @@ class Platformer extends Phaser.Scene {
         this.cameras.main.lerp.set(0.1, 0.1);
     }
 
+    // Initialize particle emitters for the scene
+    initParticles() {
+    // Create the coin collection particles (using coin sprites)
+    this.coinEmitter = this.add.particles(0, 0, 'platformer_characters', {
+        frame: 'tile_0011.png',
+        lifespan: 800,
+        speed: { min: 100, max: 200 },
+        scale: { start: 0.4, end: 0 },
+        gravityY: 100,
+        blendMode: 'ADD',
+        emitting: false
+    });
+    
+    // Create small bubbles using the player character as tiny bubbles
+    this.tinyBubbleEmitter = this.add.particles(0, 0, 'platformer_characters', {
+        frame: 'tile_0000.png',
+        lifespan: 1000,
+        scale: { start: 0.09, end: 0 },
+        alpha: { start: 0.4, end: 0 },
+        speed: { min: 10, max: 30 },
+        angle: { min: 250, max: 290 },
+        frequency: 300,
+        quantity: 1,
+        emitting: false,
+        tint: 0xc0ffff  // Light cyan tint
+    });
+    
+    // Create medium bubbles using twirl_02 (hollow circle)
+    this.mediumBubbleEmitter = this.add.particles(0, 0, 'twirl_02', {
+        lifespan: { min: 900, max: 1100 },
+        speed: { min: 40, max: 70 },
+        scale: { start: 0.1, end: 0.2 },
+        alpha: { start: 0.7, end: 0 },
+        frequency: 600,
+        quantity: 1,
+        gravityY: -40,
+        angle: { min: 250, max: 290 },
+        emitting: false,
+        accelerationX: { min: -5, max: 5 },  // Slight horizontal wobble
+        blendMode: 'ADD'
+    });
+    
+    // Create large bubbles using twirl_03 (ring bubble)
+    this.largeBubbleEmitter = this.add.particles(0, 0, 'twirl_03', {
+        lifespan: { min: 500, max: 1000 },
+        speed: { min: 30, max: 60 },
+        scale: { start: 0.1, end: 0.2 },    // Bubbles grow as they rise
+        alpha: { start: 0.6, end: 0 },
+        frequency: 800,                     // Less frequent than other bubbles
+        quantity: 1,
+        gravityY: -30,                      // Slower rising
+        angle: { min: 260, max: 280 },
+        emitting: false,
+        accelerationX: { min: -5, max: 5 },
+        blendMode: 'ADD'
+    });
+    
+    // Create special burst bubbles using twirl_01 (filled circle)
+    this.burstBubbleEmitter = this.add.particles(0, 0, 'twirl_01', {
+        lifespan: 2000,
+        speed: { min: 50, max: 100 },
+        scale: { start: 0.2, end: 0.05 },  // Shrink as they rise (like popping)
+        alpha: { start: 0.5, end: 0 },
+        frequency: -1,                     // Only used for explosion, not continuous
+        gravityY: -50,
+        emitting: false,
+        blendMode: 'ADD'
+    });
+}
+
+
+
+
+
     update() {
         // Skip normal movement if player is drowning
         if (!my.sprite.player.isDrowning) {
@@ -223,13 +300,33 @@ class Platformer extends Phaser.Scene {
                 // set a Y velocity to have the player "jump" upwards (negative Y direction)
                 my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
             }
+        } else {
+        // Update all bubble emitter positions when drowning
+        const playerX = my.sprite.player.x;
+        const playerY = my.sprite.player.y;
+        
+        if (this.tinyBubbleEmitter) {
+            this.tinyBubbleEmitter.setPosition(playerX, playerY);
         }
+        
+        if (this.mediumBubbleEmitter) {
+            this.mediumBubbleEmitter.setPosition(playerX, playerY - 5);
+        }
+        
+        if (this.largeBubbleEmitter) {
+            this.largeBubbleEmitter.setPosition(playerX, playerY - 10);
+        }
+    }
     }
     
     // Callback for coin collection
     collectCoin(player, coin) {
         // Play a sound effect
         // this.sound.play('coin-collect');  // Uncomment if you have a sound
+        
+        // Create particle burst at coin position
+        this.coinEmitter.setPosition(coin.x, coin.y);
+        this.coinEmitter.explode(15); // Emit 15 particles in a burst
         
         // Make the coin disappear
         coin.destroy();
@@ -251,49 +348,69 @@ class Platformer extends Phaser.Scene {
 
     // Called when player touches water
     playerTouchWater(player, tile) {
-        // Only start drowning if not already drowning and tile exists
-        if (!my.sprite.player.isDrowning && tile && tile.index !== -1) {
-            console.log("Player touched water!");
-            
-            // Start drowning
-            my.sprite.player.isDrowning = true;
-            
-            // Show drowning text
-            this.drowningText.setVisible(true);
-            
-            // Stop player movement and add drowning animation
-            my.sprite.player.body.setVelocity(0, 0);
-            my.sprite.player.body.setAcceleration(0, 0);
-            
-            // Make player sink
-            this.tweens.add({
-                targets: my.sprite.player,
-                y: my.sprite.player.y + 30,
-                alpha: 0.6,
-                angle: 180,
-                duration: this.DROWNING_DURATION,
-                ease: 'Power2'
-            });
-            
-            // Flash the drowning text
-            this.tweens.add({
-                targets: this.drowningText,
-                alpha: 0.3,
-                yoyo: true,
-                repeat: 5,
-                duration: 200
-            });
-            
-            // Set timer to respawn player
-            this.time.delayedCall(this.DROWNING_DURATION, () => {
-                this.respawnPlayer();
-            });
-        }
+    // Only start drowning if not already drowning and tile exists
+    if (!my.sprite.player.isDrowning && tile && tile.index !== -1) {
+        console.log("Player touched water!");
+        
+        // Start drowning
+        my.sprite.player.isDrowning = true;
+        
+        // Show drowning text
+        this.drowningText.setVisible(true);
+        
+        // Stop player movement
+        my.sprite.player.body.setVelocity(0, 0);
+        my.sprite.player.body.setAcceleration(0, 0);
+        
+        // Position all bubble emitters at player position
+        const playerX = my.sprite.player.x;
+        const playerY = my.sprite.player.y;
+        
+        // First, create a burst of bubbles for impact effect
+        this.burstBubbleEmitter.setPosition(playerX, playerY);
+        this.burstBubbleEmitter.explode(15);
+        
+        // Start continuous bubble emissions
+        this.tinyBubbleEmitter.setPosition(playerX, playerY);
+        this.tinyBubbleEmitter.start();
+        
+        this.mediumBubbleEmitter.setPosition(playerX, playerY);
+        this.mediumBubbleEmitter.start();
+        
+        this.largeBubbleEmitter.setPosition(playerX, playerY);
+        this.largeBubbleEmitter.start();
+        
+        // Make player sink
+        this.tweens.add({
+            targets: my.sprite.player,
+            y: my.sprite.player.y + 30,
+            alpha: 0.6,
+            angle: 180,
+            duration: this.DROWNING_DURATION,
+            ease: 'Power2'
+        });
+        
+        // Flash the drowning text
+        this.tweens.add({
+            targets: this.drowningText,
+            alpha: 0.3,
+            yoyo: true,
+            repeat: 5,
+            duration: 200
+        });
+        
+        // Set timer to respawn player
+        this.time.delayedCall(this.DROWNING_DURATION, () => {
+            this.respawnPlayer();
+        });
     }
+}
+
+
     
     // Reset player after drowning
-    // Reset player after drowning
-respawnPlayer() {
+    
+    respawnPlayer() {
     console.log("Player respawning!");
     
     // Reset drowning state
@@ -305,8 +422,21 @@ respawnPlayer() {
     my.sprite.player.setRotation(0);
     my.sprite.player.setFlipY(false);
     
-    // Stop any tweens that might be running on the player
+    // Stop any tweens
     this.tweens.killTweensOf(my.sprite.player);
+    
+    // Stop all bubble emitters
+    if (this.tinyBubbleEmitter) {
+        this.tinyBubbleEmitter.stop();
+    }
+    
+    if (this.mediumBubbleEmitter) {
+        this.mediumBubbleEmitter.stop();
+    }
+    
+    if (this.largeBubbleEmitter) {
+        this.largeBubbleEmitter.stop();
+    }
     
     // Return to spawn point
     my.sprite.player.setPosition(this.spawnPoint.x, this.spawnPoint.y);
@@ -315,7 +445,7 @@ respawnPlayer() {
     my.sprite.player.body.setVelocity(0, 0);
     my.sprite.player.body.setAcceleration(0, 0);
     
-    // Add a small invulnerability period to prevent immediate drowning if respawn is over water
+    // Add invulnerability period
     my.sprite.player.invulnerable = true;
     this.time.delayedCall(500, () => {
         my.sprite.player.invulnerable = false;
@@ -324,5 +454,12 @@ respawnPlayer() {
     // Hide the drowning text
     this.drowningText.setVisible(false);
 }
+
+
+
 }
+
+
+
+
 
