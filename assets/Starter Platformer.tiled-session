@@ -15,15 +15,27 @@
         },
         "platformer-level-1.tmj#tilemap_packed": {
             "scaleInEditor": 1
+        },
+        "platformer-level-1.tmx": {
+            "scale": 0.5543,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 632.3290636839256,
+                "y": 238.13819231463106
+            }
+        },
+        "platformer-level-1.tmx#tilemap_packed": {
+            "scaleInDock": 1
         }
     },
     "last.exportedFilePath": "/Users/ellafont/Desktop/CMPM120/StarterPlatformer/assets",
     "last.imagePath": "/Users/ellafont/Desktop/CMPM120/StarterPlatformer/assets",
+    "map.height": 40,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 18,
     "map.tileWidth": 18,
-    "map.width": 40,
+    "map.width": 80,
     "openFiles": [
     ],
     "project": "Starter Platformer.tiled-project",
