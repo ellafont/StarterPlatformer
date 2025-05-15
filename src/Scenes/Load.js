@@ -21,6 +21,14 @@ class Load extends Phaser.Scene {
         this.load.image("twirl_02", "particles/circle_04.png");
         this.load.image("twirl_03", "particles/circle_05.png");
 
+        this.load.image("smoke_01", "particles/smoke_01.png");
+        this.load.image("smoke_02", "particles/smoke_02.png");
+        this.load.image("smoke_03", "particles/smoke_03.png");
+        this.load.image("smoke_04", "particles/smoke_04.png");
+        this.load.image("smoke_05", "particles/smoke_05.png");
+        this.load.image("smoke_07", "particles/smoke_07.png");
+        this.load.image("smoke_09", "particles/smoke_09.png");
+
         // Debug loading of twirl images
         this.load.on('filecomplete', function(key) {
             if (key.includes('twirl')) {

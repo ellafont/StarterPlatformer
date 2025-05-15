@@ -11,6 +11,9 @@ class Platformer extends Phaser.Scene {
         this.JUMP_VELOCITY = -900; //more negative = higher jump
         this.DROWNING_DURATION = 1500; // milliseconds before respawn
         
+        my.vfx = {};
+        this.PARTICLE_VELOCITY = 60; // Define particle velocity for movement effect
+
         // Initialize score
         this.score = 0;
     }
@@ -57,6 +60,54 @@ class Platformer extends Phaser.Scene {
 
         // Initialize particle emitters for later use
         this.initParticles();
+
+        // movement vfx
+        // Horizontal movement particles - more refined
+        my.vfx.walking = this.add.particles(0, 0, 'smoke_03', {
+            //frame: ['smoke_03.png', 'smoke_09.png'],
+            random: true, // Randomly select between the two frames
+            scale: {start: 0.08, end: 0.11}, // Start smaller, grow less
+            maxAliveParticles: 9, // Limit particles for a cleaner look
+            lifespan: 280, // Shorter lifespan for quicker fading
+            alpha: {start: 0.7, end: 0}, // Start semi-transparent, fade completely
+            frequency: 80, // Emit less frequently
+            gravityY: -50, // Slight upward drift
+            blendMode: 'ADD', // Creates a glowing effect
+            emitting: false
+        });
+
+        my.vfx.walking.stop();
+
+        // Jumping particles - different effect
+        my.vfx.jumping = this.add.particles(0, 0, 'smoke_05', {
+            random: true,
+            scale: {start: 0.15, end: 0.0},
+            maxAliveParticles: 12,
+            lifespan: 600,
+            alpha: {start: 0.9, end: 0.4},
+            speed: {min: 50, max: 150},
+            angle: {min: 230, max: 310}, // Spread in a downward arc
+            gravityY: -100, // Make particles float upward
+            //tint: 00000, // Slight blue tint for a different look
+            blendMode: 'ADD',
+            emitting: false
+        });
+        my.vfx.jumping.stop();
+
+        // Add a separate landing emitter for better visual distinction
+        my.vfx.landing = this.add.particles(0, 0, 'smoke_01', {
+            scale: {start: 0.2, end: 0.05},  // Larger impact effect
+            maxAliveParticles: 15,
+            lifespan: 500,
+            alpha: {start: 0.8, end: 0},
+            speed: {min: 80, max: 200},  // Faster outward burst
+            angle: {min: 180, max: 360},  // Wider angle for ground impact
+            gravityY: -50,
+            tint: 0xf8f8ff,
+            blendMode: 'ADD',
+            emitting: false
+        });
+
 
         // Find spawn point and coins from the object layer
         // The Objects layer should be created in Tiled with player spawn point and coins
@@ -269,12 +320,25 @@ class Platformer extends Phaser.Scene {
     update() {
         // Skip normal movement if player is drowning
         if (!my.sprite.player.isDrowning) {
+            // Track if we were previously in the air (for jump landing effect)
+            var wasInAir = !my.sprite.player.body.blocked.down;
+
             if(cursors.left.isDown) {
                 // player accelerate to the left
                 my.sprite.player.body.setAccelerationX(-this.ACCELERATION);
                 
                 my.sprite.player.resetFlip();
                 my.sprite.player.anims.play('walk', true);
+                
+                //walking movement vfx
+                my.vfx.walking.startFollow(my.sprite.player, my.sprite.player.displayWidth/2-10, my.sprite.player.displayHeight/2-5, false);
+                my.vfx.walking.setParticleSpeed(this.PARTICLE_VELOCITY, 0);
+                // Only play smoke effect if touching the ground
+                if (my.sprite.player.body.blocked.down) {
+                    my.vfx.walking.start();
+                } else {
+                    my.vfx.walking.stop();
+                }
 
             } else if(cursors.right.isDown) {
                 // player accelerate to the right
@@ -283,40 +347,98 @@ class Platformer extends Phaser.Scene {
                 my.sprite.player.setFlip(true, false);
                 my.sprite.player.anims.play('walk', true);
 
+                //walking movement vfx for right
+                my.vfx.walking.startFollow(my.sprite.player, -my.sprite.player.displayWidth/2+10, my.sprite.player.displayHeight/2-5, false);
+                my.vfx.walking.setParticleSpeed(-this.PARTICLE_VELOCITY, 0);
+                // Only play smoke effect if touching the ground
+                if (my.sprite.player.body.blocked.down) {
+                    my.vfx.walking.start();
+                } else {
+                    my.vfx.walking.stop();
+                }
+
             } else {
                 // set acceleration to 0 and have DRAG take over
                 my.sprite.player.body.setAccelerationX(0);
                 my.sprite.player.body.setDragX(this.DRAG);
 
                 my.sprite.player.anims.play('idle');
+                my.vfx.walking.stop();
             }
 
             // player jump
             // note that we need body.blocked rather than body.touching b/c the former applies to tilemap tiles and the latter to the "ground"
             if(!my.sprite.player.body.blocked.down) {
                 my.sprite.player.anims.play('jump');
+
+                // If we just started jumping, emit jump particles
+                //wasInAir === false && 
+                //NOT CALLED BC THE WAS IN AIR 
+                // also particles are not emitting.
+                if (wasInAir === false && my.sprite.player.body.velocity.y < -300) {
+                    console.log("JUMP DETECTED");
+        
+                    // Position at player's feet with offset for visibility
+                    my.vfx.jumping.setPosition(
+                        my.sprite.player.x, 
+                        my.sprite.player.y + my.sprite.player.displayHeight/2
+                    );
+        
+                    // Use a more reliable particle method - emitParticleAt with quantity
+                    for (let i = 0; i < 8; i++) {
+                        my.vfx.jumping.emitParticleAt(
+                            my.sprite.player.x + Phaser.Math.Between(-10, 10), 
+                            my.sprite.player.y + my.sprite.player.displayHeight/2
+                        );
+                    }
+                }
             }
+
+            // Landing effect when hitting ground
+            // Landing detection - replace with:
+            if (wasInAir && my.sprite.player.body.blocked.down) {
+                console.log("LANDING DETECTED");
+    
+                // Use the landing-specific emitter
+                my.vfx.landing.setPosition(
+                    my.sprite.player.x, 
+                    my.sprite.player.y + my.sprite.player.displayHeight/2
+                );
+    
+                // Create a more dramatic landing effect with multiple particles
+                for (let i = 0; i < 12; i++) {
+                    my.vfx.landing.emitParticleAt(
+                        my.sprite.player.x + Phaser.Math.Between(-15, 15), 
+                        my.sprite.player.y + my.sprite.player.displayHeight/2 + Phaser.Math.Between(-2, 5)
+                    );
+                }
+    
+                // Add a small camera shake for extra feedback
+                this.cameras.main.shake(100, 0.005);
+            }
+
             if(my.sprite.player.body.blocked.down && Phaser.Input.Keyboard.JustDown(cursors.up)) {
                 // set a Y velocity to have the player "jump" upwards (negative Y direction)
                 my.sprite.player.body.setVelocityY(this.JUMP_VELOCITY);
             }
+
         } else {
-        // Update all bubble emitter positions when drowning
-        const playerX = my.sprite.player.x;
-        const playerY = my.sprite.player.y;
+            // Update all bubble emitter positions when drowning
+            const playerX = my.sprite.player.x;
+            const playerY = my.sprite.player.y;
         
-        if (this.tinyBubbleEmitter) {
-            this.tinyBubbleEmitter.setPosition(playerX, playerY);
-        }
+            if (this.tinyBubbleEmitter) {
+                this.tinyBubbleEmitter.setPosition(playerX, playerY);
+            }
         
-        if (this.mediumBubbleEmitter) {
-            this.mediumBubbleEmitter.setPosition(playerX, playerY - 5);
-        }
+            if (this.mediumBubbleEmitter) {
+                this.mediumBubbleEmitter.setPosition(playerX, playerY - 5);
+            }
         
-        if (this.largeBubbleEmitter) {
-            this.largeBubbleEmitter.setPosition(playerX, playerY - 10);
+            if (this.largeBubbleEmitter) {
+                this.largeBubbleEmitter.setPosition(playerX, playerY - 10);
+            }
         }
-    }
     }
     
     // Callback for coin collection
