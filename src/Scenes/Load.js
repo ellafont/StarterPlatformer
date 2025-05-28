@@ -29,6 +29,22 @@ class Load extends Phaser.Scene {
         this.load.image("smoke_07", "particles/smoke_07.png");
         this.load.image("smoke_09", "particles/smoke_09.png");
 
+        this.load.audio("jump_sound", "audio/kenney_digital-audio/Audio/phaseJump1.ogg")
+
+        this.load.audio("land_sound", "audio/kenny_impact-sounds/Audio/impactSoft_heavy_002.ogg")
+        
+
+        this.load.audio("footstep_grass_0", "audio/kenney_impact-sounds/Audio/footstep_grass_000.ogg")
+        this.load.audio("footstep_grass_1", "audio/kenney_impact-sounds/Audio/footstep_grass_001.ogg")
+        this.load.audio("footstep_grass_2", "audio/kenney_impact-sounds/Audio/footstep_grass_002.ogg")
+        this.load.audio("footstep_grass_3", "audio/kenney_impact-sounds/Audio/footstep_grass_003.ogg")
+        this.load.audio("footstep_grass_4", "audio/kenney_impact-sounds/Audio/footstep_grass_004.ogg")
+
+        this.load.audio("coin_collect_sound", "audio/kenney_sci-fi-sounds/Audio/forceField_001.ogg")
+
+        this.load.audio("drown_sound", "audio/kenney_sci-fi-sounds/Audio/doorOpen_002.ogg")
+
+
         // Debug loading of twirl images
         this.load.on('filecomplete', function(key) {
             if (key.includes('twirl')) {
@@ -74,12 +90,12 @@ class Load extends Phaser.Scene {
             key: 'coin-spin',
             frames: this.anims.generateFrameNames('platformer_characters', {
                 prefix: "tile_",
-                start: 10,  // Assuming coin frames start here
+                start: 11,  // Assuming coin frames start here
                 end: 12,    // And end here
                 suffix: ".png",
                 zeroPad: 4
             }),
-            frameRate: 8,
+            frameRate: 1.15,
             repeat: -1
         });
 
