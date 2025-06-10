@@ -12,6 +12,13 @@
 // debug with extreme prejudice
 "use strict"
 
+// Import global variables
+import { my, cursors, SCALE } from './globals.js';
+
+// Import scenes
+import Load from './Scenes/Load.js';
+import Platformer from './Scenes/Platformer.js';
+
 // game config
 let config = {
     parent: 'phaser-game',
@@ -38,9 +45,5 @@ let config = {
     backgroundColor: '#87CEEB', // Set a background color for empty space
     scene: [Load, Platformer]
 }
-
-var cursors;
-const SCALE = 2.0;
-var my = {sprite: {}, text: {}};
 
 const game = new Phaser.Game(config);

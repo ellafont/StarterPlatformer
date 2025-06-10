@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platformer Starter Kit</title>
-    <script src="./lib/phaser.js"></script>
-    <script src="./src/Scenes/Load.js"></script>
-    <script src="./src/Scenes/Platformer.js"></script>
-    <script src="./src/main.js"></script>
+    <meta charset="utf-8">
+    <title>Platformer</title>
+    <script src="lib/phaser.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+        }
+        #phaser-game {
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
     <div id="phaser-game"></div>
-    <span id="description"></span>
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>

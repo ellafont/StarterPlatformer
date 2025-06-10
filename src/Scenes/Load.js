@@ -13,10 +13,7 @@ class Load extends Phaser.Scene {
         this.load.image("tilemap_tiles", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj");   // Tilemap in JSON
         
-        // Load coin sound (optional)
-        // this.load.audio('coin-collect', 'coin-collect.wav');
-
-        // Load twirl particle images
+        // Load particle images
         this.load.image("twirl_01", "particles/circle_01.png");
         this.load.image("twirl_02", "particles/circle_04.png");
         this.load.image("twirl_03", "particles/circle_05.png");
@@ -29,32 +26,29 @@ class Load extends Phaser.Scene {
         this.load.image("smoke_07", "particles/smoke_07.png");
         this.load.image("smoke_09", "particles/smoke_09.png");
 
-        this.load.audio("jump_sound", "audio/kenney_digital-audio/Audio/phaseJump1.ogg")
-
-        this.load.audio("land_sound", "audio/kenny_impact-sounds/Audio/impactSoft_heavy_002.ogg")
+        // Load audio
+        // Movement sounds
+        this.load.audio("jump_sound", "audio/kenney_sci-fi-sounds/Audio/laserRetro_000.ogg");
+        this.load.audio("land_sound", "audio/kenney_sci-fi-sounds/Audio/impactMetal_000.ogg");
+        this.load.audio("dash_sound", "audio/kenney_sci-fi-sounds/Audio/laserSmall_000.ogg");
         
+        // Footstep sounds
+        this.load.audio("footstep_grass_0", "audio/kenney_sci-fi-sounds/Audio/impactMetal_000.ogg");
+        this.load.audio("footstep_grass_1", "audio/kenney_sci-fi-sounds/Audio/impactMetal_001.ogg");
+        this.load.audio("footstep_grass_2", "audio/kenney_sci-fi-sounds/Audio/impactMetal_002.ogg");
+        this.load.audio("footstep_grass_3", "audio/kenney_sci-fi-sounds/Audio/impactMetal_003.ogg");
+        this.load.audio("footstep_grass_4", "audio/kenney_sci-fi-sounds/Audio/impactMetal_004.ogg");
 
-        this.load.audio("footstep_grass_0", "audio/kenney_impact-sounds/Audio/footstep_grass_000.ogg")
-        this.load.audio("footstep_grass_1", "audio/kenney_impact-sounds/Audio/footstep_grass_001.ogg")
-        this.load.audio("footstep_grass_2", "audio/kenney_impact-sounds/Audio/footstep_grass_002.ogg")
-        this.load.audio("footstep_grass_3", "audio/kenney_impact-sounds/Audio/footstep_grass_003.ogg")
-        this.load.audio("footstep_grass_4", "audio/kenney_impact-sounds/Audio/footstep_grass_004.ogg")
-
-        this.load.audio("coin_collect_sound", "audio/kenney_sci-fi-sounds/Audio/forceField_001.ogg")
-
-        this.load.audio("drown_sound", "audio/kenney_sci-fi-sounds/Audio/doorOpen_002.ogg")
-
-
-        // Debug loading of twirl images
-        this.load.on('filecomplete', function(key) {
-            if (key.includes('twirl')) {
-                console.log('Loaded twirl image:', key);
-            }
-        });
-
+        // Game event sounds
+        this.load.audio("coin_collect_sound", "audio/kenney_sci-fi-sounds/Audio/laserRetro_001.ogg");
+        this.load.audio("drown_sound", "audio/kenney_sci-fi-sounds/Audio/explosionCrunch_000.ogg");
+        this.load.audio("enemy_hit_sound", "audio/kenney_sci-fi-sounds/Audio/impactMetal_000.ogg");
+        this.load.audio("enemy_die_sound", "audio/kenney_sci-fi-sounds/Audio/explosionCrunch_000.ogg");
+        this.load.audio("powerup_collect", "audio/kenney_sci-fi-sounds/Audio/laserRetro_002.ogg");
     }
 
     create() {
+        // Create animations
         this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNames('platformer_characters', {
@@ -90,8 +84,8 @@ class Load extends Phaser.Scene {
             key: 'coin-spin',
             frames: this.anims.generateFrameNames('platformer_characters', {
                 prefix: "tile_",
-                start: 11,  // Assuming coin frames start here
-                end: 12,    // And end here
+                start: 11,
+                end: 12,
                 suffix: ".png",
                 zeroPad: 4
             }),
@@ -99,11 +93,12 @@ class Load extends Phaser.Scene {
             repeat: -1
         });
 
-         // ...and pass to the next Scene
-         this.scene.start("platformerScene");
+        // Start the platformer scene
+        this.scene.start("platformerScene");
     }
 
-    // Never get here since a new scene is started in create()
     update() {
     }
 }
+
+export default Load;
