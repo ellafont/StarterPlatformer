@@ -29,7 +29,7 @@ let config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true,
+            debug: false,
             gravity: {
                 x: 0,
                 y: 0
@@ -42,7 +42,7 @@ let config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    backgroundColor: '#87CEEB', // Set a background color for empty space
+    backgroundColor: '#87ceeb',
     scene: [Load, Platformer]
 }
 

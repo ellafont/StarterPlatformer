@@ -1,3 +1,5 @@
+import { SCALE } from '../globals.js';
+
 class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame);
@@ -35,12 +37,16 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         // Play death animation and effects
         this.scene.sound.play('enemy_die_sound');
-        this.scene.add.particles(this.x, this.y, 'enemy_hit', {
-            speed: 100,
-            scale: { start: 0.5, end: 0 },
+        
+        // Create death particles
+        const particles = this.scene.add.particles(this.x, this.y, 'platformer_characters', {
+            frame: this.frame.name,
+            speed: { min: 50, max: 150 },
+            scale: { start: SCALE * 0.5, end: 0 },
             alpha: { start: 1, end: 0 },
             lifespan: 500,
-            quantity: 10
+            quantity: 8,
+            gravityY: 300
         });
         
         // Fade out and destroy
@@ -49,22 +55,37 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             alpha: 0,
             y: this.y - 20,
             duration: 500,
-            onComplete: () => this.destroy()
+            onComplete: () => {
+                this.destroy();
+                particles.destroy();
+            }
         });
     }
 }
 
 class Walkabot extends Enemy {
     constructor(scene, x, y) {
-        super(scene, x, y, 'enemies', 'walkabot_0');
+        super(scene, x, y, 'platformer_characters', 'tile_0002.png');
         this.anims.play('walkabot-walk');
-        this.patrolDistance = 200; // Distance to patrol before turning
+        this.patrolDistance = 64; // Reduced patrol distance to about 2 tiles
         this.startX = x;
+        this.isTurning = false;
+        this.turnDelay = 500; // Half a second delay when turning
+        this.lastTurnTime = 0;
     }
 
-    update() {
+    update(time) {
         super.update();
         if (this.isDead) return;
+
+        // If we're in the middle of turning, don't move
+        if (this.isTurning) {
+            this.body.setVelocityX(0);
+            if (time > this.lastTurnTime + this.turnDelay) {
+                this.isTurning = false;
+            }
+            return;
+        }
 
         // Move in current direction
         this.body.setVelocityX(this.speed * this.direction);
@@ -73,13 +94,15 @@ class Walkabot extends Enemy {
         if (Math.abs(this.x - this.startX) > this.patrolDistance) {
             this.direction *= -1;
             this.flipX = !this.flipX;
+            this.isTurning = true;
+            this.lastTurnTime = time;
         }
     }
 }
 
 class SpikeSentry extends Enemy {
     constructor(scene, x, y) {
-        super(scene, x, y, 'enemies', 'spike_0');
+        super(scene, x, y, 'platformer_characters', 'tile_0004.png');
         this.anims.play('spike-sentry-idle');
         this.shootInterval = 2000; // Time between shots in ms
         this.lastShotTime = 0;
@@ -101,8 +124,8 @@ class SpikeSentry extends Enemy {
         const projectile = this.scene.physics.add.sprite(
             this.x + (this.flipX ? -20 : 20),
             this.y,
-            'enemies',
-            'spike_projectile'
+            'platformer_characters',
+            'tile_0006.png'  // Using a different frame from the tilemap for the projectile
         ).setScale(SCALE);
 
         projectile.body.setAllowGravity(false);

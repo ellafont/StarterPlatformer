@@ -13,6 +13,9 @@ class Load extends Phaser.Scene {
         this.load.image("tilemap_tiles", "tilemap_packed.png");                         // Packed tilemap
         this.load.tilemapTiledJSON("platformer-level-1", "platformer-level-1.tmj");   // Tilemap in JSON
         
+        // Load background image
+        this.load.image("background.png", "background.png");
+        
         // Load particle images
         this.load.image("twirl_01", "particles/circle_01.png");
         this.load.image("twirl_02", "particles/circle_04.png");
@@ -25,6 +28,17 @@ class Load extends Phaser.Scene {
         this.load.image("smoke_05", "particles/smoke_05.png");
         this.load.image("smoke_07", "particles/smoke_07.png");
         this.load.image("smoke_09", "particles/smoke_09.png");
+
+        this.load.image("star_01", "particles/star_01.png");
+        this.load.image("star_02", "particles/star_02.png");
+        this.load.image("star_03", "particles/star_03.png");
+        this.load.image("star_04", "particles/star_04.png");
+        this.load.image("star_05", "particles/star_05.png");
+        this.load.image("star_06", "particles/star_06.png");
+        this.load.image("star_07", "particles/star_07.png");
+
+        this.load.image('dash_trail', 'particles/Rotated/spark_06_rotated.png');
+        this.load.image('debris', 'particles/Rotated/muzzle_01_rotated.png');
 
         // Load audio
         // Movement sounds
@@ -90,6 +104,33 @@ class Load extends Phaser.Scene {
                 zeroPad: 4
             }),
             frameRate: 1.15,
+            repeat: -1
+        });
+
+        // Add enemy animations
+        this.anims.create({
+            key: 'walkabot-walk',
+            frames: this.anims.generateFrameNames('platformer_characters', {
+                prefix: "tile_",
+                start: 2,
+                end: 3,
+                suffix: ".png",
+                zeroPad: 4
+            }),
+            frameRate: 8,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'spike-sentry-idle',
+            frames: this.anims.generateFrameNames('platformer_characters', {
+                prefix: "tile_",
+                start: 4,
+                end: 5,
+                suffix: ".png",
+                zeroPad: 4
+            }),
+            frameRate: 5,
             repeat: -1
         });
 

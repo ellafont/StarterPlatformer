@@ -11,7 +11,10 @@ class Platformer extends Phaser.Scene {
         super("platformerScene");
     }
 
-    // preload() is REMOVED - asset loading is handled by Load.js
+    preload() {
+        // Load the AnimatedTiles plugin for this scene
+        this.load.scenePlugin('AnimatedTiles', '../lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
+    }
 
     init() {
         // Variables and settings
@@ -66,6 +69,12 @@ class Platformer extends Phaser.Scene {
 
         // Create tilemap
         this.map = this.add.tilemap("platformer-level-1");
+
+        // Initialize the animated tiles plugin after creating the tilemap
+        this.animatedTiles.init(this.map);
+
+        // Add parallax background after tilemap is created
+        this.createParallaxBackground();
 
         // Add tileset
         this.tileset = this.map.addTilesetImage("tilemap_packed", "tilemap_tiles");
@@ -232,7 +241,6 @@ class Platformer extends Phaser.Scene {
             'Arrow Keys: Move and Jump',
             'Shift: Dash',
             'S: Toggle Settings',
-            'D: Toggle Debug Mode',
             'Enter: Restart Level'
         ];
 
@@ -271,10 +279,6 @@ class Platformer extends Phaser.Scene {
 
         // Input
         this.initializeInput();
-        this.input.keyboard.on('keydown-D', () => {
-            this.physics.world.drawDebug = !this.physics.world.drawDebug;
-            this.physics.world.debugGraphic.clear();
-        }, this);
 
         // Camera
         this.cameras.main.startFollow(my.sprite.player, true, 0.1, 0.1);
@@ -292,7 +296,7 @@ class Platformer extends Phaser.Scene {
         this.gameCompleteContainer.add(this.playAgainWinText);
 
         // Player Died Screen (for drowning)
-        this.playerDiedContainer = this.add.container(this.cameras.main.width / 2, this.cameras.main.height / 2).setScrollFactor(0).setVisible(false).setDepth(100);
+        this.playerDiedContainer = this.add.container(this.cameras.main.width / 2, this.cameras.main.height / 2).setScrollFactor(0).setDepth(100).setVisible(false);
         const diedGraphics = this.add.graphics();
         diedGraphics.fillStyle(0x330000, 0.8); 
         diedGraphics.fillRect(-250, -150, 500, 300);
@@ -305,10 +309,13 @@ class Platformer extends Phaser.Scene {
 
         // Initialize dash trail particles
         this.dashTrailEmitter = this.add.particles(0, 0, 'dash_trail', {
-            speed: 100,
-            scale: { start: 0.5, end: 0 },
-            alpha: { start: 0.5, end: 0 },
-            lifespan: 200,
+            speed: { min: 80, max: 180 },
+            scale: { start: 0.4, end: 0 },
+            alpha: { start: 0.7, end: 0 },
+            lifespan: 250,
+            angle: { min: 0, max: 360 },
+            frequency: 10,
+            quantity: 1,
             blendMode: 'ADD',
             emitting: false
         });
@@ -380,6 +387,15 @@ class Platformer extends Phaser.Scene {
     }
 
     update(time, delta) {
+        // Update parallax background to follow camera scroll and move continuously
+        if (this.parallaxLayers) {
+            this.parallaxLayers.forEach(layer => {
+                const timeOffset = time * 0.04 * layer.speed;
+                layer.sprite.tilePositionX = this.cameras.main.scrollX * layer.speed + timeOffset;
+                layer.sprite.tilePositionY = this.cameras.main.scrollY * layer.speed;
+            });
+        }
+
         // Ensure player exists before any checks
         if (!my.sprite.player || !my.sprite.player.body) {
             // console.warn("Player sprite or body missing at top of update. Scene likely shutting down or in error state.");
@@ -699,7 +715,22 @@ class Platformer extends Phaser.Scene {
             player.body.setVelocityY(-300); // Bounce off enemy
         } else if (!player.invulnerable) {
             // Player takes damage
-            this.playerTouchWater(player, null);
+            this.playerDied = true;
+            player.body.setVelocity(0, 0);
+            player.body.setAcceleration(0, 0);
+            player.anims.stop();
+            
+            this.playerDiedContainer.setVisible(true);
+            this.playerDiedText.setText("You've Been Killed!");
+            
+            // Add death animation
+            this.tweens.add({
+                targets: player,
+                y: player.y - 20,
+                alpha: 0,
+                duration: 1000,
+                ease: 'Power2'
+            });
         }
     }
 
@@ -708,6 +739,48 @@ class Platformer extends Phaser.Scene {
         
         projectile.destroy();
         this.playerTouchWater(player, null);
+    }
+
+    createParallaxBackground() {
+        // Get world size
+        const mapWidth = this.map.widthInPixels * SCALE;
+        const mapHeight = this.map.heightInPixels * SCALE;
+
+        // Remove old parallax layers if present
+        if (this.backgroundContainer) {
+            this.backgroundContainer.destroy();
+        }
+        this.backgroundContainer = this.add.container(0, 0).setDepth(-1);
+
+        // Create parallax layers array
+        this.parallaxLayers = [];
+
+        // Add the main background image as a parallax layer
+        const bgSprite = this.add.tileSprite(0, 0, mapWidth, mapHeight, 'background.png')
+            .setOrigin(0, 0)
+            .setScrollFactor(0);
+        this.backgroundContainer.add(bgSprite);
+        this.parallaxLayers.push({
+            sprite: bgSprite,
+            speed: 0.2 // Adjust for desired parallax effect
+        });
+
+        // Debris particle emitter (Phaser 3.60+ syntax)
+        this.debrisEmitterManager = this.add.particles('debris', {
+            x: { min: mapWidth * 0.7, max: mapWidth }, // Emit from right side
+            y: 0, // Start at top
+            lifespan: { min: 4000, max: 7000 },
+            speedX: { min: -100, max: -30 }, // Move left
+            speedY: { min: 80, max: 180 },   // Move down
+            scale: { start: 0.5, end: 0.2 },
+            alpha: { start: 0.7, end: 0 },
+            angle: { min: 200, max: 250 }, // Some rotation
+            quantity: 1,
+            frequency: 120,
+            rotate: { min: 0, max: 360 },
+            blendMode: 'ADD'
+        });
+        this.backgroundContainer.add(this.debrisEmitterManager);
     }
 }
 
