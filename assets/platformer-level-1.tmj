@@ -352,6 +352,42 @@
                  "width":0,
                  "x":314.666666666667,
                  "y":294.666666666667
+                }, 
+                {
+                 "height":0,
+                 "id":32,
+                 "name":"PowerUp",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"speed"
+                        }],
+                 "rotation":0,
+                 "type":"powerup",
+                 "visible":true,
+                 "width":0,
+                 "x":197.333333333333,
+                 "y":101.333333333333
+                }, 
+                {
+                 "height":0,
+                 "id":37,
+                 "name":"PowerUp",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"speed"
+                        }],
+                 "rotation":0,
+                 "type":"powerup",
+                 "visible":true,
+                 "width":0,
+                 "x":1265.33333333333,
+                 "y":388
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -360,7 +396,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":31,
+ "nextobjectid":38,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",
