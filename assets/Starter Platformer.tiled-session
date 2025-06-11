@@ -18,10 +18,10 @@
                 3
             ],
             "scale": 0.75,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 1415.3333333333333,
-                "y": 48
+                "x": 476.6666666666667,
+                "y": 302.66666666666663
             }
         },
         "platformer-level-1.tmj#tilemap_packed": {

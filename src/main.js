@@ -18,9 +18,10 @@ import { my, cursors, SCALE } from './globals.js';
 // Import scenes
 import Load from './Scenes/Load.js';
 import Platformer from './Scenes/Platformer.js';
+import Title from './Scenes/Title.js';
 
 // game config
-let config = {
+const config = {
     parent: 'phaser-game',
     type: Phaser.CANVAS,
     render: {
@@ -43,7 +44,7 @@ let config = {
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     backgroundColor: '#87ceeb',
-    scene: [Load, Platformer]
-}
+    scene: [Title, Load, Platformer]
+};
 
 const game = new Phaser.Game(config);
