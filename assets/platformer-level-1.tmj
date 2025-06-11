@@ -334,6 +334,24 @@
                  "width":0,
                  "x":1105.33333333333,
                  "y":188
+                }, 
+                {
+                 "ellipse":true,
+                 "height":0,
+                 "id":30,
+                 "name":"Enemy",
+                 "properties":[
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"spike"
+                        }],
+                 "rotation":0,
+                 "type":"enemy",
+                 "visible":true,
+                 "width":0,
+                 "x":314.666666666667,
+                 "y":294.666666666667
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -342,7 +360,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":29,
+ "nextobjectid":31,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

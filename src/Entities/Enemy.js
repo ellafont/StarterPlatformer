@@ -67,16 +67,24 @@ class Walkabot extends Enemy {
     constructor(scene, x, y) {
         super(scene, x, y, 'platformer_characters', 'tile_0002.png');
         this.anims.play('walkabot-walk');
-        this.patrolDistance = 64; // Reduced patrol distance to about 2 tiles
+        this.patrolDistance = 100; // Distance to patrol before turning
         this.startX = x;
         this.isTurning = false;
         this.turnDelay = 500; // Half a second delay when turning
         this.lastTurnTime = 0;
+        this.distanceTraveled = 0; // Track distance traveled in current direction
+        this.lastUpdateTime = 0; // Initialize lastUpdateTime
     }
 
     update(time) {
         super.update();
         if (this.isDead) return;
+
+        // Initialize lastUpdateTime if it's the first update
+        if (this.lastUpdateTime === 0) {
+            this.lastUpdateTime = time;
+            return;
+        }
 
         // If we're in the middle of turning, don't move
         if (this.isTurning) {
@@ -90,12 +98,18 @@ class Walkabot extends Enemy {
         // Move in current direction
         this.body.setVelocityX(this.speed * this.direction);
         
+        // Update distance traveled
+        const deltaTime = (time - this.lastUpdateTime) / 1000; // Convert to seconds
+        this.distanceTraveled += Math.abs(this.speed * deltaTime);
+        this.lastUpdateTime = time;
+        
         // Check if we need to turn around
-        if (Math.abs(this.x - this.startX) > this.patrolDistance) {
+        if (this.distanceTraveled >= this.patrolDistance) {
             this.direction *= -1;
             this.flipX = !this.flipX;
             this.isTurning = true;
             this.lastTurnTime = time;
+            this.distanceTraveled = 0; // Reset distance for the new direction
         }
     }
 }
@@ -107,6 +121,7 @@ class SpikeSentry extends Enemy {
         this.shootInterval = 2000; // Time between shots in ms
         this.lastShotTime = 0;
         this.projectileSpeed = 200;
+        this.shootDirection = 1; // 1 for right, -1 for left
     }
 
     update(time) {
@@ -117,19 +132,24 @@ class SpikeSentry extends Enemy {
         if (time > this.lastShotTime + this.shootInterval) {
             this.shoot();
             this.lastShotTime = time;
+            this.shootDirection *= -1; // Alternate direction
+            this.flipX = (this.shootDirection === -1); // Flip sprite based on direction
         }
     }
 
     shoot() {
         const projectile = this.scene.physics.add.sprite(
-            this.x + (this.flipX ? -20 : 20),
+            this.x + (this.shootDirection === -1 ? -20 : 20),
             this.y,
             'platformer_characters',
-            'tile_0006.png'  // Using a different frame from the tilemap for the projectile
+            'tile_0006.png'
         ).setScale(SCALE);
 
+        // Add projectile to the projectiles group
+        this.scene.projectiles.add(projectile);
+
         projectile.body.setAllowGravity(false);
-        projectile.setVelocityX(this.projectileSpeed * (this.flipX ? -1 : 1));
+        projectile.setVelocityX(this.projectileSpeed * this.shootDirection);
         
         // Destroy projectile after 2 seconds
         this.scene.time.delayedCall(2000, () => {

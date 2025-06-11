@@ -709,12 +709,17 @@ class Platformer extends Phaser.Scene {
     handleEnemyCollision(player, enemy) {
         if (this.playerDied || this.gameOver) return;
         
-        // Check if player is jumping on enemy
-        if (player.body.velocity.y > 0 && player.y < enemy.y - enemy.height/2) {
+        // Get the bottom of the player and top of the enemy
+        const playerBottom = player.y + player.height/2;
+        const enemyTop = enemy.y - enemy.height/2;
+        
+        // Check if player is above enemy (regardless of velocity)
+        if (playerBottom <= enemyTop + 10) { // Added small buffer for better feel
+            // Player is on top of enemy - only enemy takes damage
             enemy.takeDamage();
             player.body.setVelocityY(-300); // Bounce off enemy
         } else if (!player.invulnerable) {
-            // Player takes damage
+            // Player hits enemy from side - player takes damage
             this.playerDied = true;
             player.body.setVelocity(0, 0);
             player.body.setAcceleration(0, 0);
@@ -738,7 +743,24 @@ class Platformer extends Phaser.Scene {
         if (this.playerDied || this.gameOver || player.invulnerable) return;
         
         projectile.destroy();
-        this.playerTouchWater(player, null);
+        
+        // Player takes damage
+        this.playerDied = true;
+        player.body.setVelocity(0, 0);
+        player.body.setAcceleration(0, 0);
+        player.anims.stop();
+        
+        this.playerDiedContainer.setVisible(true);
+        this.playerDiedText.setText("You've Been Killed!");
+        
+        // Add death animation
+        this.tweens.add({
+            targets: player,
+            y: player.y - 20,
+            alpha: 0,
+            duration: 1000,
+            ease: 'Power2'
+        });
     }
 
     createParallaxBackground() {
