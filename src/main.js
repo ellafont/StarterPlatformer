@@ -19,11 +19,12 @@ import { my, cursors, SCALE } from './globals.js';
 import Load from './Scenes/Load.js';
 import Platformer from './Scenes/Platformer.js';
 import Title from './Scenes/Title.js';
+import Credits from './Scenes/Credits.js';
 
 // game config
 const config = {
     parent: 'phaser-game',
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     render: {
         pixelArt: true  // prevent pixel art from getting blurred when scaled
     },
@@ -44,7 +45,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     backgroundColor: '#87ceeb',
-    scene: [Title, Load, Platformer]
+    scene: [Title, Load, Platformer, Credits]
 };
 
 const game = new Phaser.Game(config);

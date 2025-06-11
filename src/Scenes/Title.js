@@ -124,6 +124,19 @@ class Title extends Phaser.Scene {
             shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 2, stroke: true, fill: true }
         }).setOrigin(0.5);
 
+        // Credits text
+        const creditsTextY = height - 30;
+        this.add.text(this.cameras.main.centerX, creditsTextY,
+            "Press C for Credits", {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            color: '#ffff00',
+            align: 'center',
+            stroke: '#000000',
+            strokeThickness: 3,
+            shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, stroke: true, fill: true }
+        }).setOrigin(0.5);
+
         // Create blinking animation
         this.tweens.add({
             targets: startText,
@@ -135,6 +148,8 @@ class Title extends Phaser.Scene {
 
         // Add space key input
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        // Add C key input for credits
+        this.creditsKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
 
         // Add hover effect to title
         this.tweens.add({
@@ -161,6 +176,9 @@ class Title extends Phaser.Scene {
     update() {
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
             this.scene.start("loadScene");
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.creditsKey)) {
+            this.scene.start("creditsScene");
         }
     }
 }
