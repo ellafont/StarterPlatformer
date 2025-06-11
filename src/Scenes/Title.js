@@ -94,7 +94,7 @@ class Title extends Phaser.Scene {
             "• Use ARROW KEYS to move",
             "• Press SHIFT to dash",
             "• Jump on enemies to defeat them",
-            "• Avoid spikes and projectiles",
+            "• Avoid travelling aliens",
             "• Collect coins for points",
             "• Reach the end to complete the level"
         ];
