@@ -13,7 +13,7 @@ class Platformer extends Phaser.Scene {
 
     preload() {
         // Load the AnimatedTiles plugin for this scene
-        this.load.scenePlugin('AnimatedTiles', '../lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
+        this.load.scenePlugin('AnimatedTiles', 'lib/AnimatedTiles.js', 'animatedTiles', 'animatedTiles');
     }
 
     init() {
